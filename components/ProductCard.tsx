@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { WooCommerceProduct } from "@/lib/woocommerce";
-import { formatPrice, calculateDiscount } from "@/lib/utils/formatters";
+import { formatPrice, calculateDiscount, getImageUrl } from "@/lib/utils/formatters";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { showToast } from "@/components/ToastProvider";
@@ -22,10 +22,8 @@ export default function ProductCard({ product }: ProductCardProps) {
       ? calculateDiscount(product.regular_price, product.sale_price)
       : 0;
 
-  const imageUrl =
-    product.images && product.images.length > 0
-      ? product.images[0].src
-      : "/placeholder-product.svg";
+  const rawImage = product.images && product.images.length > 0 ? product.images[0].src : "";
+  const imageUrl = getImageUrl(rawImage);
 
   function handleAddToCart(e: React.MouseEvent) {
     e.preventDefault();
@@ -74,6 +72,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             src={imageUrl}
             alt={product.name}
             fill
+            unoptimized={true}
             className="object-contain p-4 group-hover:scale-105 transition-transform duration-300"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           />

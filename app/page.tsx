@@ -464,6 +464,7 @@ export default async function Home() {
                 alt="Summer Sale Smart Watch"
                 width={200}
                 height={200}
+                unoptimized={true}
                 className="object-contain drop-shadow-lg group-hover:scale-105 transition-transform duration-300"
               />
             </div>
@@ -499,6 +500,7 @@ export default async function Home() {
                 alt="New Arrivals Sneakers"
                 width={200}
                 height={200}
+                unoptimized={true}
                 className="object-contain drop-shadow-lg group-hover:scale-105 transition-transform duration-300"
               />
             </div>

@@ -1,13 +1,93 @@
-import WooCommerceRestApi from "@woocommerce/woocommerce-rest-api";
+import axios from "axios";
 
-// Initialize WooCommerce API client
-const api = new WooCommerceRestApi({
-  url: process.env.NEXT_PUBLIC_WORDPRESS_URL || "",
-  consumerKey: process.env.WOOCOMMERCE_CONSUMER_KEY || "",
-  consumerSecret: process.env.WOOCOMMERCE_CONSUMER_SECRET || "",
-  version: "wc/v3",
-  queryStringAuth: true, // Force Basic Authentication as query string
-});
+const baseURL = `${process.env.NEXT_PUBLIC_WORDPRESS_URL || "http://localhost/ecom/server"}/wp-json/wc/v3`;
+const consumerKey = process.env.WOOCOMMERCE_CONSUMER_KEY || "";
+const consumerSecret = process.env.WOOCOMMERCE_CONSUMER_SECRET || "";
+
+function normalizeImageUrls(data: any): any {
+  if (!data) return data;
+  if (typeof data === "string") {
+    return data.replace(/https:\/\/(localhost|127\.0\.0\.1)/g, "http://localhost");
+  }
+  if (Array.isArray(data)) {
+    return data.map(normalizeImageUrls);
+  }
+  if (typeof data === "object") {
+    const copy: Record<string, any> = {};
+    for (const key of Object.keys(data)) {
+      copy[key] = normalizeImageUrls(data[key]);
+    }
+    return copy;
+  }
+  return data;
+}
+
+export const api = {
+  get: async (endpoint: string, params: Record<string, any> = {}) => {
+    const cleanEndpoint = endpoint.startsWith("/") ? endpoint.slice(1) : endpoint;
+    const response = await axios.get(`${baseURL}/${cleanEndpoint}`, {
+      params: {
+        consumer_key: consumerKey,
+        consumer_secret: consumerSecret,
+        ...params,
+      },
+      timeout: 10000,
+    });
+    return {
+      status: response.status,
+      data: normalizeImageUrls(response.data),
+      headers: response.headers,
+    };
+  },
+  post: async (endpoint: string, data: any = {}, params: Record<string, any> = {}) => {
+    const cleanEndpoint = endpoint.startsWith("/") ? endpoint.slice(1) : endpoint;
+    const response = await axios.post(`${baseURL}/${cleanEndpoint}`, data, {
+      params: {
+        consumer_key: consumerKey,
+        consumer_secret: consumerSecret,
+        ...params,
+      },
+      timeout: 10000,
+    });
+    return {
+      status: response.status,
+      data: normalizeImageUrls(response.data),
+      headers: response.headers,
+    };
+  },
+  put: async (endpoint: string, data: any = {}, params: Record<string, any> = {}) => {
+    const cleanEndpoint = endpoint.startsWith("/") ? endpoint.slice(1) : endpoint;
+    const response = await axios.put(`${baseURL}/${cleanEndpoint}`, data, {
+      params: {
+        consumer_key: consumerKey,
+        consumer_secret: consumerSecret,
+        ...params,
+      },
+      timeout: 10000,
+    });
+    return {
+      status: response.status,
+      data: normalizeImageUrls(response.data),
+      headers: response.headers,
+    };
+  },
+  delete: async (endpoint: string, params: Record<string, any> = {}) => {
+    const cleanEndpoint = endpoint.startsWith("/") ? endpoint.slice(1) : endpoint;
+    const response = await axios.delete(`${baseURL}/${cleanEndpoint}`, {
+      params: {
+        consumer_key: consumerKey,
+        consumer_secret: consumerSecret,
+        ...params,
+      },
+      timeout: 10000,
+    });
+    return {
+      status: response.status,
+      data: response.data,
+      headers: response.headers,
+    };
+  },
+};
 
 export default api;
 

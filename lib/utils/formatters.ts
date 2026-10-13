@@ -92,3 +92,11 @@ export function calculateDiscount(
 
   return Math.round(((regular - sale) / regular) * 100);
 }
+
+/**
+ * Sanitize image URL to prevent local SSL errors
+ */
+export function getImageUrl(src?: string): string {
+  if (!src) return "/placeholder-product.svg";
+  return src.replace(/^https:\/\/(localhost|127\.0\.0\.1)/i, "http://localhost");
+}

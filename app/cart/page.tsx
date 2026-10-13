@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
-import { formatPrice } from "@/lib/utils/formatters";
+import { formatPrice, getImageUrl } from "@/lib/utils/formatters";
 import { showToast } from "@/components/ToastProvider";
 
 export default function CartPage() {
@@ -85,7 +85,7 @@ export default function CartPage() {
                 {/* Image */}
                 <Link href={`/products/${item.slug}`} className="flex-shrink-0">
                   <div className="relative w-24 h-24 bg-gray-50 rounded-2xl overflow-hidden">
-                    <Image src={item.image} alt={item.name} fill className="object-contain p-2" sizes="96px" />
+                    <Image src={getImageUrl(item.image)} alt={item.name} fill unoptimized={true} className="object-contain p-2" sizes="96px" />
                   </div>
                 </Link>
 

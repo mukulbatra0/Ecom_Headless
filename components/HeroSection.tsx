@@ -58,6 +58,7 @@ export default function HeroSection() {
                 width={500}
                 height={500}
                 priority
+                loading="eager"
                 className="object-contain relative z-10 drop-shadow-xl hover:scale-105 transition-transform duration-500"
               />
             </div>

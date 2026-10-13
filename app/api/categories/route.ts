@@ -12,13 +12,11 @@ const FALLBACK_CATEGORIES = [
 export async function GET() {
   try {
     const fetchPromise = api.get("products/categories", {
-      per_page: 8,
-      hide_empty: true,
-      parent: 0,
+      per_page: 20,
     });
 
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Timeout")), 2000)
+      setTimeout(() => reject(new Error("Timeout")), 8000)
     );
 
     const response = (await Promise.race([fetchPromise, timeoutPromise])) as any;

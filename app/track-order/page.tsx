@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { getImageUrl } from "@/lib/utils/formatters";
 
 interface TrackingItem {
   id: number;
@@ -180,9 +181,10 @@ export default function TrackOrderPage() {
                   <div key={item.id} className="py-4 first:pt-0 last:pb-0 flex items-center gap-4">
                     <div className="relative w-16 h-16 rounded-xl bg-gray-50 border border-gray-100 overflow-hidden flex-shrink-0">
                       <Image
-                        src={item.image}
+                        src={getImageUrl(item.image)}
                         alt={item.name}
                         fill
+                        unoptimized={true}
                         className="object-contain p-2"
                       />
                     </div>

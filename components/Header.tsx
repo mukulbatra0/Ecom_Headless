@@ -4,12 +4,14 @@ import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
+import { useAuth } from "@/context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const searchRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
   const { itemCount } = useCart();
   const { count: wishlistCount } = useWishlist();
   const router = useRouter();
@@ -50,6 +52,9 @@ export default function Header() {
             <form onSubmit={handleSearch} className="w-full relative">
               <input
                 type="text"
+                name="search"
+                autoComplete="off"
+                suppressHydrationWarning
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search for products, brands and more..."
@@ -79,16 +84,32 @@ export default function Header() {
 
           {/* Right Action Icons */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Account */}
-            <Link
-              href="/account"
-              className="p-2.5 text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-colors flex items-center justify-center"
-              aria-label="Account"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-              </svg>
-            </Link>
+            {/* Account / User Avatar */}
+            {user ? (
+              <Link
+                href="/account"
+                className="flex items-center gap-2 pl-1.5 pr-3 py-1 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors border border-gray-100"
+                title={`${user.first_name || user.username}`}
+              >
+                <div className="w-7 h-7 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center">
+                  {(user.first_name?.[0] || user.username?.[0] || "U").toUpperCase()}
+                </div>
+                <span className="text-xs font-semibold text-slate-800 hidden sm:inline max-w-[80px] truncate">
+                  {user.first_name || user.username}
+                </span>
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className="p-2.5 text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-colors flex items-center justify-center"
+                aria-label="Account"
+                title="Sign In"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                </svg>
+              </Link>
+            )}
 
             {/* Wishlist */}
             <Link
@@ -146,6 +167,9 @@ export default function Header() {
           <form onSubmit={handleSearch} className="relative">
             <input
               type="text"
+              name="mobile-search"
+              autoComplete="off"
+              suppressHydrationWarning
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search for products, brands and more..."

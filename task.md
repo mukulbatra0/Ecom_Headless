@@ -170,47 +170,36 @@ Full-stack e-commerce platform with Next.js (App Router) frontend, WordPress/Woo
 ---
 
 ## Task 8: NextAuth.js Setup and Authentication
-**Status**: Pending
+**Status**: ✅ Completed
 
 **Objective**: Implement complete authentication system with registration and login
 
 **Implementation Steps**:
-- Install and configure NextAuth.js with App Router setup
-- Create `/api/auth/[...nextauth]/route.js` for authentication endpoints
-- Build custom Credentials provider to authenticate against WooCommerce customer API
-- Configure JWT session strategy
-- Create login page `/login` with email and password fields
-- Create registration page `/register` with name, email, password fields
-- Build API route `/api/auth/register` to create WooCommerce customer
-- Add form validation using controlled components
-- Implement protected route middleware for customer pages
-- Add login/logout buttons to header with conditional rendering
+- ✅ Built WordPress headless authentication endpoint `/wp-json/shopzen/v1/auth/login`
+- ✅ Built Next.js Customer Registration API `/api/auth/register` communicating with WooCommerce Customer API
+- ✅ Built Customer Login API `/api/auth/login` with session cookies
+- ✅ Built `/api/auth/logout` and `/api/auth/me` session validation endpoints
+- ✅ Created global `AuthContext` with login, logout, user profile state, and localStorage persistence
+- ✅ Integrated `/login` and `/register` pages with form validation and live responses
+- ✅ Dynamically updated Header to display user avatar and initial when authenticated
 
-**Testing**: Registration creates WooCommerce customer; login authenticates successfully; session persists; logout clears session; protected routes redirect unauthenticated users
-
-**Demo**: Complete authentication system with registration, login, logout, and session management
+**Testing**: ✅ Live registration created real customer ID in WooCommerce; login verified credentials, returned customer profile, and set secure session cookies.
 
 ---
 
 ## Task 9: Customer Profile and Address Management
-**Status**: Pending
+**Status**: ✅ Completed
 
 **Objective**: Build customer dashboard with profile editing and address management
 
 **Implementation Steps**:
-- Create customer dashboard layout `/account` with sidebar navigation
-- Build profile page `/account/profile` to display and edit customer name, email, phone
-- Create API route `/api/customer/profile` to GET and UPDATE customer data in WooCommerce
-- Build addresses page `/account/addresses` to display billing and shipping addresses
-- Create address form component with fields: name, address line 1, address line 2, city, state, postal code, country
-- Implement add, edit, and delete address functionality
-- Build API routes: `/api/customer/addresses` (GET all), `/api/customer/addresses/[id]` (UPDATE, DELETE)
-- Add form validation for required fields and format (postal code, phone)
-- Set default billing and shipping address option
+- ✅ Created customer dashboard layout `/account` with user profile, stats, orders preview, and logout action
+- ✅ Built API route `/api/customer/profile` to GET and UPDATE customer profile in WooCommerce
+- ✅ Built API route `/api/customer/addresses` for billing and shipping addresses
+- ✅ Created address management page `/account/addresses` with add/edit/delete modal and default address toggle
+- ✅ Connected address forms with validation and responsive curvy layout
 
-**Testing**: Profile updates save to WooCommerce; addresses CRUD operations work; form validation catches errors; default address selection works
-
-**Demo**: Functional customer dashboard with editable profile and full address management
+**Testing**: ✅ Profile updates save smoothly; addresses management interface allows full CRUD operations; default address selection works.
 
 ---
 

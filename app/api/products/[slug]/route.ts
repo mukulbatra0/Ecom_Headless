@@ -155,7 +155,7 @@ export async function GET(
     });
 
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Timeout")), 2000)
+      setTimeout(() => reject(new Error("Timeout")), 8000)
     );
 
     const response = (await Promise.race([fetchPromise, timeoutPromise])) as any;

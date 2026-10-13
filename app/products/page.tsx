@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-import { formatPrice } from "@/lib/utils/formatters";
+import { formatPrice, getImageUrl } from "@/lib/utils/formatters";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { showToast } from "@/components/ToastProvider";
@@ -63,7 +63,7 @@ function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart();
   const { isInWishlist, toggleItem } = useWishlist();
   const inWishlist = isInWishlist(product.id);
-  const imageUrl = product.images?.[0]?.src || "/placeholder-product.svg";
+  const imageUrl = getImageUrl(product.images?.[0]?.src);
   const discount =
     product.on_sale && product.regular_price && product.sale_price
       ? Math.round(((parseFloat(product.regular_price) - parseFloat(product.sale_price)) / parseFloat(product.regular_price)) * 100)
@@ -73,7 +73,7 @@ function ProductCard({ product }: { product: Product }) {
     <div className="group bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-indigo-100 hover:-translate-y-1">
       <Link href={`/products/${product.slug}`}>
         <div className="relative aspect-square overflow-hidden bg-gray-50 rounded-t-3xl">
-          <Image src={imageUrl} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" />
+          <Image src={imageUrl} alt={product.name} fill unoptimized={true} className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" />
           <div className="absolute top-3 left-3 flex flex-col gap-1.5">
             {discount > 0 && <span className="px-2.5 py-1 bg-rose-500 text-white text-[10px] font-bold rounded-full">{discount}% OFF</span>}
             {product.featured && <span className="px-2.5 py-1 bg-amber-500 text-white text-[10px] font-bold rounded-full">Featured</span>}
@@ -123,7 +123,7 @@ function ProductCard({ product }: { product: Product }) {
   );
 }
 
-export default function ProductsPage() {
+function ProductsPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -412,5 +412,19 @@ export default function ProductsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      }
+    >
+      <ProductsPageContent />
+    </Suspense>
   );
 }

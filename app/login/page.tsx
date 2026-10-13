@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { showToast } from "@/components/ToastProvider";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -12,27 +13,17 @@ export default function LoginPage() {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const { login } = useAuth();
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!email || !password) { showToast("Please fill all fields", "error"); return; }
     setLoading(true);
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        showToast("Welcome back! Logged in successfully.", "success");
-        router.push("/account");
-      } else {
-        showToast(data.message || "Invalid credentials", "error");
-      }
-    } catch {
-      showToast("Login failed. Please try again.", "error");
-    }
+    const success = await login(email, password);
     setLoading(false);
+    if (success) {
+      router.push("/account");
+    }
   }
 
   return (

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { formatPrice } from "@/lib/utils/formatters";
+import { formatPrice, getImageUrl } from "@/lib/utils/formatters";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { showToast } from "@/components/ToastProvider";
@@ -134,7 +134,7 @@ export default function ProductDetailPage() {
   }
 
   const inWishlist = isInWishlist(product.id);
-  const imageUrl = product.images?.[0]?.src || "/placeholder-product.svg";
+  const imageUrl = getImageUrl(product.images?.[0]?.src);
   const discount = product.on_sale && product.regular_price && product.sale_price
     ? Math.round(((parseFloat(product.regular_price) - parseFloat(product.sale_price)) / parseFloat(product.regular_price)) * 100)
     : 0;
@@ -183,9 +183,10 @@ export default function ProductDetailPage() {
           <div className="space-y-4">
             <div className="relative aspect-square bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm">
               <Image
-                src={product.images?.[activeImage]?.src || imageUrl}
+                src={getImageUrl(product.images?.[activeImage]?.src || imageUrl)}
                 alt={product.name}
                 fill
+                unoptimized={true}
                 className="object-contain p-6 transition-all duration-300"
                 sizes="(max-width: 768px) 100vw, 50vw"
                 priority
@@ -211,7 +212,7 @@ export default function ProductDetailPage() {
                     onClick={() => setActiveImage(i)}
                     className={`relative aspect-square bg-white rounded-2xl overflow-hidden border-2 transition-all ${activeImage === i ? "border-indigo-500 shadow-md shadow-indigo-100" : "border-gray-100 hover:border-indigo-200"}`}
                   >
-                    <Image src={img.src} alt={img.alt || product.name} fill className="object-contain p-2" sizes="80px" />
+                    <Image src={getImageUrl(img.src)} alt={img.alt || product.name} fill unoptimized={true} className="object-contain p-2" sizes="80px" />
                   </button>
                 ))}
               </div>
@@ -454,12 +455,12 @@ export default function ProductDetailPage() {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {relatedProducts.map((rp) => {
-                const rpImage = rp.images?.[0]?.src || "/placeholder-product.svg";
+                const rpImage = getImageUrl(rp.images?.[0]?.src);
                 return (
                   <Link key={rp.id} href={`/products/${rp.slug}`}>
                     <div className="bg-white rounded-3xl overflow-hidden border border-gray-100 hover:border-indigo-100 hover:shadow-lg transition-all hover:-translate-y-1 group">
                       <div className="relative aspect-square bg-gray-50 rounded-t-3xl overflow-hidden">
-                        <Image src={rpImage} alt={rp.name} fill className="object-contain p-4 group-hover:scale-105 transition-transform duration-300" sizes="200px" />
+                        <Image src={rpImage} alt={rp.name} fill unoptimized={true} className="object-contain p-4 group-hover:scale-105 transition-transform duration-300" sizes="200px" />
                       </div>
                       <div className="p-3">
                         <p className="text-xs font-semibold text-gray-800 line-clamp-2 mb-1">{rp.name}</p>

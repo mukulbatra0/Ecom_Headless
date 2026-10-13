@@ -101,6 +101,9 @@ export default function Footer() {
             <form onSubmit={handleSubscribe} className="space-y-2">
               <input
                 type="email"
+                name="email"
+                autoComplete="email"
+                suppressHydrationWarning
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"

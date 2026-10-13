@@ -3,13 +3,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { WooCommerceCategory } from "@/lib/woocommerce";
+import { getImageUrl } from "@/lib/utils/formatters";
 
 interface CategoryCardProps {
   category: WooCommerceCategory;
 }
 
 export default function CategoryCard({ category }: CategoryCardProps) {
-  const imageUrl = category.image?.src || "/placeholder-category.svg";
+  const imageUrl = getImageUrl(category.image?.src || "/placeholder-category.svg");
 
   return (
     <Link href={`/products?category=${category.id}`}>
@@ -20,6 +21,7 @@ export default function CategoryCard({ category }: CategoryCardProps) {
             src={imageUrl}
             alt={category.name}
             fill
+            unoptimized={true}
             className="object-cover group-hover:scale-110 transition-transform duration-500"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
           />

@@ -72,9 +72,8 @@ export async function GET() {
       status: "publish",
     });
 
-    // 2-second timeout so it never hangs if WooCommerce is offline
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Timeout")), 2000)
+      setTimeout(() => reject(new Error("Timeout")), 8000)
     );
 
     const response = (await Promise.race([fetchPromise, timeoutPromise])) as any;

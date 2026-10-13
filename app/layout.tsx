@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 import ToastProvider from "@/components/ToastProvider";
@@ -33,16 +35,20 @@ interface LayoutProps {
 export default function RootLayout({ children }: LayoutProps) {
   return (
     <html lang="en" className={`${inter.variable} h-full`}>
-      <body className="min-h-full flex flex-col antialiased">
-        <CartProvider>
-          <WishlistProvider>
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-            <MobileBottomNav />
-            <ToastProvider />
-          </WishlistProvider>
-        </CartProvider>
+      <body className="min-h-full flex flex-col antialiased" suppressHydrationWarning>
+        <AuthProvider>
+          <CartProvider>
+            <WishlistProvider>
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Footer />
+              <Suspense fallback={null}>
+                <MobileBottomNav />
+              </Suspense>
+              <ToastProvider />
+            </WishlistProvider>
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );
