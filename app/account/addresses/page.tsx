@@ -25,36 +25,8 @@ export default function AddressesPage() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
 
-  const [addresses, setAddresses] = useState<Address[]>([
-    {
-      id: "1",
-      type: "shipping",
-      title: "Home",
-      firstName: "Sachin",
-      lastName: "Kumar",
-      address1: "Flat 402, Lotus Residency, Sector 45",
-      address2: "Near City Park",
-      city: "Gurugram",
-      state: "Haryana",
-      postcode: "122003",
-      phone: "+91 9876543210",
-      isDefault: true,
-    },
-    {
-      id: "2",
-      type: "billing",
-      title: "Office / Work",
-      firstName: "Sachin",
-      lastName: "Kumar",
-      address1: "Tower B, 7th Floor, Cyber City",
-      address2: "DLF Phase 2",
-      city: "Gurugram",
-      state: "Haryana",
-      postcode: "122002",
-      phone: "+91 9876543210",
-      isDefault: false,
-    },
-  ]);
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [loadingAddresses, setLoadingAddresses] = useState(true);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -75,6 +47,54 @@ export default function AddressesPage() {
   useEffect(() => {
     if (!isLoading && !user) {
       router.push("/login");
+      return;
+    }
+
+    if (user) {
+      fetch("/api/customer/addresses")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            const list: Address[] = [];
+            if (data.shipping && data.shipping.address_1) {
+              list.push({
+                id: "shipping",
+                type: "shipping",
+                title: "Delivery / Shipping Address",
+                firstName: data.shipping.first_name || user.first_name || "",
+                lastName: data.shipping.last_name || user.last_name || "",
+                address1: data.shipping.address_1,
+                address2: data.shipping.address_2 || "",
+                city: data.shipping.city || "",
+                state: data.shipping.state || "",
+                postcode: data.shipping.postcode || "",
+                phone: data.billing?.phone || user.phone || "",
+                isDefault: true,
+              });
+            }
+            if (data.billing && data.billing.address_1) {
+              list.push({
+                id: "billing",
+                type: "billing",
+                title: "Billing Address",
+                firstName: data.billing.first_name || user.first_name || "",
+                lastName: data.billing.last_name || user.last_name || "",
+                address1: data.billing.address_1,
+                address2: data.billing.address_2 || "",
+                city: data.billing.city || "",
+                state: data.billing.state || "",
+                postcode: data.billing.postcode || "",
+                phone: data.billing.phone || user.phone || "",
+                isDefault: list.length === 0,
+              });
+            }
+            setAddresses(list);
+          }
+        })
+        .catch(() => {})
+        .finally(() => {
+          setLoadingAddresses(false);
+        });
     }
   }, [user, isLoading, router]);
 
@@ -102,12 +122,36 @@ export default function AddressesPage() {
     setModalOpen(true);
   }
 
-  function handleSave(e: React.FormEvent) {
+  async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!form.address1 || !form.city || !form.postcode) {
       showToast("Please fill all required address fields", "error");
       return;
     }
+
+    const payloadAddr = {
+      first_name: form.firstName || user?.first_name || "",
+      last_name: form.lastName || user?.last_name || "",
+      address_1: form.address1,
+      address_2: form.address2 || "",
+      city: form.city,
+      state: form.state || "",
+      postcode: form.postcode,
+      country: "IN",
+      phone: form.phone || user?.phone || "",
+    };
+
+    try {
+      await fetch("/api/customer/addresses", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(
+          form.type === "billing"
+            ? { billing: payloadAddr }
+            : { shipping: payloadAddr }
+        ),
+      });
+    } catch {}
 
     if (editingId) {
       setAddresses((prev) =>

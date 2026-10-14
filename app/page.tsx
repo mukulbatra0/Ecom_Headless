@@ -1,303 +1,10 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import HeroSection from "@/components/HeroSection";
 import ProductCard from "@/components/ProductCard";
-import { WooCommerceProduct } from "@/lib/woocommerce";
-
-// Curated default products matching the user's design image
-const FALLBACK_FEATURED_PRODUCTS: WooCommerceProduct[] = [
-  {
-    id: 101,
-    name: "Apple AirPods Pro",
-    slug: "apple-airpods-pro",
-    permalink: "/products/apple-airpods-pro",
-    date_created: "2026-01-01",
-    date_modified: "2026-01-01",
-    type: "simple",
-    status: "publish",
-    featured: true,
-    description: "Active Noise Cancellation with Transparency mode and spatial audio.",
-    short_description: "Magic like you've never heard.",
-    sku: "AAP-001",
-    price: "24900",
-    regular_price: "26900",
-    sale_price: "24900",
-    on_sale: true,
-    stock_status: "instock",
-    stock_quantity: 15,
-    manage_stock: true,
-    categories: [{ id: 1, name: "Electronics", slug: "electronics" }],
-    tags: [{ id: 1, name: "Audio", slug: "audio" }],
-    images: [
-      {
-        id: 1,
-        src: "https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=800&auto=format&fit=crop&q=80",
-        name: "Apple AirPods Pro",
-        alt: "Apple AirPods Pro",
-      },
-    ],
-    attributes: [],
-    variations: [],
-    average_rating: "4.8",
-    rating_count: 120,
-    related_ids: [],
-  },
-  {
-    id: 102,
-    name: "Samsung Galaxy Buds 2",
-    slug: "samsung-galaxy-buds-2",
-    permalink: "/products/samsung-galaxy-buds-2",
-    date_created: "2026-01-01",
-    date_modified: "2026-01-01",
-    type: "simple",
-    status: "publish",
-    featured: true,
-    description: "Immersive sound with dynamic 2-way speakers and active noise canceling.",
-    short_description: "Comfort fit with premium sound.",
-    sku: "SGB-002",
-    price: "12999",
-    regular_price: "16999",
-    sale_price: "12999",
-    on_sale: true,
-    stock_status: "instock",
-    stock_quantity: 20,
-    manage_stock: true,
-    categories: [{ id: 1, name: "Electronics", slug: "electronics" }],
-    tags: [],
-    images: [
-      {
-        id: 2,
-        src: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=800&auto=format&fit=crop&q=80",
-        name: "Samsung Galaxy Buds 2",
-        alt: "Samsung Galaxy Buds 2",
-      },
-    ],
-    attributes: [],
-    variations: [],
-    average_rating: "4.6",
-    rating_count: 95,
-    related_ids: [],
-  },
-  {
-    id: 103,
-    name: "Nike Running Shoes",
-    slug: "nike-running-shoes",
-    permalink: "/products/nike-running-shoes",
-    date_created: "2026-01-01",
-    date_modified: "2026-01-01",
-    type: "simple",
-    status: "publish",
-    featured: true,
-    description: "Breathable mesh upper with responsive cushioning for high endurance running.",
-    short_description: "Engineered for speed and comfort.",
-    sku: "NRS-003",
-    price: "4499",
-    regular_price: "6999",
-    sale_price: "4499",
-    on_sale: true,
-    stock_status: "instock",
-    stock_quantity: 12,
-    manage_stock: true,
-    categories: [{ id: 2, name: "Fashion", slug: "fashion" }],
-    tags: [],
-    images: [
-      {
-        id: 3,
-        src: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&auto=format&fit=crop&q=80",
-        name: "Nike Running Shoes",
-        alt: "Nike Running Shoes",
-      },
-    ],
-    attributes: [],
-    variations: [],
-    average_rating: "4.9",
-    rating_count: 210,
-    related_ids: [],
-  },
-  {
-    id: 104,
-    name: "Smart Watch",
-    slug: "smart-watch",
-    permalink: "/products/smart-watch",
-    date_created: "2026-01-01",
-    date_modified: "2026-01-01",
-    type: "simple",
-    status: "publish",
-    featured: true,
-    description: "Fitness and health tracker with heart rate monitor, AMOLED display and long battery.",
-    short_description: "Your smart daily health companion.",
-    sku: "SW-004",
-    price: "8999",
-    regular_price: "12999",
-    sale_price: "8999",
-    on_sale: true,
-    stock_status: "instock",
-    stock_quantity: 18,
-    manage_stock: true,
-    categories: [{ id: 1, name: "Electronics", slug: "electronics" }],
-    tags: [],
-    images: [
-      {
-        id: 4,
-        src: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80",
-        name: "Smart Watch",
-        alt: "Smart Watch",
-      },
-    ],
-    attributes: [],
-    variations: [],
-    average_rating: "4.7",
-    rating_count: 154,
-    related_ids: [],
-  },
-];
-
-const NEW_ARRIVALS_PRODUCTS: WooCommerceProduct[] = [
-  {
-    id: 201,
-    name: "iPhone 15 (128GB) - Blue",
-    slug: "iphone-15-128gb-blue",
-    permalink: "/products/iphone-15-128gb-blue",
-    date_created: "2026-01-01",
-    date_modified: "2026-01-01",
-    type: "simple",
-    status: "publish",
-    featured: true,
-    description: "A16 Bionic chip with advanced dual-camera system and dynamic island display.",
-    short_description: "Dynamic island. 48MP main camera.",
-    sku: "IPH15-01",
-    price: "79900",
-    regular_price: "89900",
-    sale_price: "79900",
-    on_sale: true,
-    stock_status: "instock",
-    stock_quantity: 10,
-    manage_stock: true,
-    categories: [{ id: 1, name: "Electronics", slug: "electronics" }],
-    tags: [],
-    images: [
-      {
-        id: 201,
-        src: "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=800&auto=format&fit=crop&q=80",
-        name: "iPhone 15 Blue",
-        alt: "iPhone 15 Blue",
-      },
-    ],
-    attributes: [],
-    variations: [],
-    average_rating: "4.9",
-    rating_count: 320,
-    related_ids: [],
-  },
-  {
-    id: 202,
-    name: "Wireless Studio Headphones",
-    slug: "wireless-studio-headphones",
-    permalink: "/products/wireless-studio-headphones",
-    date_created: "2026-01-01",
-    date_modified: "2026-01-01",
-    type: "simple",
-    status: "publish",
-    featured: true,
-    description: "High-fidelity spatial audio with deep bass and ultra-soft memory foam earcups.",
-    short_description: "40 hours of playtime.",
-    sku: "WSH-02",
-    price: "7499",
-    regular_price: "9999",
-    sale_price: "7499",
-    on_sale: true,
-    stock_status: "instock",
-    stock_quantity: 14,
-    manage_stock: true,
-    categories: [{ id: 1, name: "Electronics", slug: "electronics" }],
-    tags: [],
-    images: [
-      {
-        id: 202,
-        src: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80",
-        name: "Wireless Studio Headphones",
-        alt: "Wireless Studio Headphones",
-      },
-    ],
-    attributes: [],
-    variations: [],
-    average_rating: "4.7",
-    rating_count: 84,
-    related_ids: [],
-  },
-  {
-    id: 203,
-    name: "Men's Classic T-Shirt",
-    slug: "mens-classic-t-shirt",
-    permalink: "/products/mens-classic-t-shirt",
-    date_created: "2026-01-01",
-    date_modified: "2026-01-01",
-    type: "simple",
-    status: "publish",
-    featured: false,
-    description: "100% premium combed organic cotton crewneck t-shirt with modern regular fit.",
-    short_description: "Soft, breathable everyday wear.",
-    sku: "TSH-03",
-    price: "799",
-    regular_price: "1299",
-    sale_price: "799",
-    on_sale: true,
-    stock_status: "instock",
-    stock_quantity: 50,
-    manage_stock: true,
-    categories: [{ id: 2, name: "Fashion", slug: "fashion" }],
-    tags: [],
-    images: [
-      {
-        id: 203,
-        src: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&auto=format&fit=crop&q=80",
-        name: "Men's Classic T-Shirt",
-        alt: "Men's Classic T-Shirt",
-      },
-    ],
-    attributes: [],
-    variations: [],
-    average_rating: "4.5",
-    rating_count: 140,
-    related_ids: [],
-  },
-  {
-    id: 204,
-    name: "Urban Daily Backpack",
-    slug: "urban-daily-backpack",
-    permalink: "/products/urban-daily-backpack",
-    date_created: "2026-01-01",
-    date_modified: "2026-01-01",
-    type: "simple",
-    status: "publish",
-    featured: false,
-    description: "Weather-resistant minimalist commuter backpack with dedicated 15.6 inch laptop sleeve.",
-    short_description: "Lightweight, durable, functional.",
-    sku: "BP-04",
-    price: "2199",
-    regular_price: "3499",
-    sale_price: "2199",
-    on_sale: true,
-    stock_status: "instock",
-    stock_quantity: 25,
-    manage_stock: true,
-    categories: [{ id: 5, name: "Accessories", slug: "accessories" }],
-    tags: [],
-    images: [
-      {
-        id: 204,
-        src: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&auto=format&fit=crop&q=80",
-        name: "Urban Daily Backpack",
-        alt: "Urban Daily Backpack",
-      },
-    ],
-    attributes: [],
-    variations: [],
-    average_rating: "4.8",
-    rating_count: 92,
-    related_ids: [],
-  },
-];
+import ProductCardSkeleton from "@/components/ProductCardSkeleton";
+import api, { WooCommerceProduct } from "@/lib/woocommerce";
 
 const CATEGORIES = [
   {
@@ -349,27 +56,84 @@ const CATEGORIES = [
 
 async function getFeaturedProducts(): Promise<WooCommerceProduct[]> {
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/products/featured`,
-      { next: { revalidate: 60 } }
-    );
-    const data = await res.json();
-    if (data.success && Array.isArray(data.products) && data.products.length > 0) {
-      return data.products;
+    const res = await api.get("products", {
+      featured: true,
+      per_page: 4,
+      status: "publish",
+    });
+    if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
+      return res.data;
+    }
+
+    const fallbackRes = await api.get("products", {
+      per_page: 4,
+      status: "publish",
+    });
+    if (fallbackRes?.data && Array.isArray(fallbackRes.data)) {
+      return fallbackRes.data;
     }
   } catch (error) {
-    console.error("Error fetching featured products from API:", error);
+    console.error("Error fetching featured products from WooCommerce:", error);
   }
-  return FALLBACK_FEATURED_PRODUCTS;
+  return [];
 }
 
-export default async function Home() {
-  const featuredProducts = await getFeaturedProducts();
-  const productsToDisplay =
-    featuredProducts && featuredProducts.length > 0
-      ? featuredProducts.slice(0, 4)
-      : FALLBACK_FEATURED_PRODUCTS;
+async function getNewArrivals(): Promise<WooCommerceProduct[]> {
+  try {
+    const res = await api.get("products", {
+      orderby: "date",
+      order: "desc",
+      per_page: 4,
+      status: "publish",
+    });
+    if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
+      return res.data;
+    }
+  } catch (error) {
+    console.error("Error fetching new arrivals from WooCommerce:", error);
+  }
+  return [];
+}
 
+function ProductGridSkeleton() {
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+      {[...Array(4)].map((_, i) => (
+        <ProductCardSkeleton key={i} />
+      ))}
+    </div>
+  );
+}
+
+async function FeaturedProductsSection() {
+  const featuredProducts = await getFeaturedProducts();
+  if (featuredProducts.length === 0) {
+    return <p className="text-center text-sm text-slate-500 py-8">No featured products available at the moment.</p>;
+  }
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+      {featuredProducts.slice(0, 4).map((product) => (
+        <ProductCard key={product.id} product={product} />
+      ))}
+    </div>
+  );
+}
+
+async function NewArrivalsSection() {
+  const newArrivals = await getNewArrivals();
+  if (newArrivals.length === 0) {
+    return <p className="text-center text-sm text-slate-500 py-8">No new arrivals available at the moment.</p>;
+  }
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+      {newArrivals.slice(0, 4).map((product) => (
+        <ProductCard key={product.id} product={product} />
+      ))}
+    </div>
+  );
+}
+
+export default function Home() {
   return (
     <div className="bg-white min-h-screen">
       {/* 1. Hero Section Banner with Badges */}
@@ -391,12 +155,10 @@ export default async function Home() {
           </Link>
         </div>
 
-        {/* 4 Products Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-          {productsToDisplay.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        {/* Featured Products Grid with Suspense */}
+        <Suspense fallback={<ProductGridSkeleton />}>
+          <FeaturedProductsSection />
+        </Suspense>
       </section>
 
       {/* 3. Shop by Category Section */}
@@ -465,7 +227,7 @@ export default async function Home() {
                 width={200}
                 height={200}
                 unoptimized={true}
-                className="object-contain drop-shadow-lg group-hover:scale-105 transition-transform duration-300"
+                className="object-contain drop-shadow-lg group-hover:scale-105 transition-transform duration-300 rounded-2xl"
               />
             </div>
           </div>
@@ -501,7 +263,7 @@ export default async function Home() {
                 width={200}
                 height={200}
                 unoptimized={true}
-                className="object-contain drop-shadow-lg group-hover:scale-105 transition-transform duration-300"
+                className="object-contain drop-shadow-lg group-hover:scale-105 transition-transform duration-300 rounded-2xl"
               />
             </div>
           </div>
@@ -524,12 +286,10 @@ export default async function Home() {
           </Link>
         </div>
 
-        {/* New Arrivals Product Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-          {NEW_ARRIVALS_PRODUCTS.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        {/* New Arrivals Product Grid with Suspense */}
+        <Suspense fallback={<ProductGridSkeleton />}>
+          <NewArrivalsSection />
+        </Suspense>
       </section>
     </div>
   );

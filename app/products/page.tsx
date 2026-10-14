@@ -72,8 +72,8 @@ function ProductCard({ product }: { product: Product }) {
   return (
     <div className="group bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-indigo-100 hover:-translate-y-1">
       <Link href={`/products/${product.slug}`}>
-        <div className="relative aspect-square overflow-hidden bg-gray-50 rounded-t-3xl">
-          <Image src={imageUrl} alt={product.name} fill unoptimized={true} className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" />
+        <div className="relative aspect-square overflow-hidden bg-gray-50 rounded-2xl m-3">
+          <Image src={imageUrl} alt={product.name} fill unoptimized={true} className="object-cover group-hover:scale-105 transition-transform duration-500 rounded-2xl" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" />
           <div className="absolute top-3 left-3 flex flex-col gap-1.5">
             {discount > 0 && <span className="px-2.5 py-1 bg-rose-500 text-white text-[10px] font-bold rounded-full">{discount}% OFF</span>}
             {product.featured && <span className="px-2.5 py-1 bg-amber-500 text-white text-[10px] font-bold rounded-full">Featured</span>}
@@ -141,10 +141,19 @@ function ProductsPageContent() {
   const [priceMax, setPriceMax] = useState(50000);
   const [sortBy, setSortBy] = useState("popularity");
   const [inStockOnly, setInStockOnly] = useState(false);
-  const [onSaleOnly, setOnSaleOnly] = useState(false);
+  const [onSaleOnly, setOnSaleOnly] = useState(searchParams.get("onSale") === "true");
 
   const perPage = 12;
   const searchTimer = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const sale = searchParams.get("onSale");
+    if (sale !== null) setOnSaleOnly(sale === "true");
+    const cat = searchParams.get("category");
+    if (cat !== null) setSelectedCategory(cat);
+    const search = searchParams.get("search");
+    if (search !== null) setSearchQuery(search);
+  }, [searchParams]);
 
   const fetchCategories = useCallback(async () => {
     try {

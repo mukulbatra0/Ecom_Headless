@@ -34,12 +34,14 @@ interface LayoutProps {
 
 export default function RootLayout({ children }: LayoutProps) {
   return (
-    <html lang="en" className={`${inter.variable} h-full`}>
+    <html lang="en" className={`${inter.variable} h-full`} data-scroll-behavior="smooth">
       <body className="min-h-full flex flex-col antialiased" suppressHydrationWarning>
         <AuthProvider>
           <CartProvider>
             <WishlistProvider>
-              <Header />
+              <Suspense fallback={<div className="h-16 bg-white border-b border-gray-100" />}>
+                <Header />
+              </Suspense>
               <main className="flex-1">{children}</main>
               <Footer />
               <Suspense fallback={null}>

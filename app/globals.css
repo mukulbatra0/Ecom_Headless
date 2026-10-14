@@ -433,3 +433,10 @@ input[type="range"]::-webkit-slider-thumb:hover {
   display: inline-block;
   animation: pulseSoft 2s ease-in-out infinite;
 }
+
+/* ============ GLOBAL ROUNDED IMAGES ============ */
+img:not([class*="rounded-full"]),
+[data-nimg]:not([class*="rounded-full"]) {
+  border-radius: 1rem;
+}
+

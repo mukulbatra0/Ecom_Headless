@@ -152,7 +152,22 @@ export async function GET(request: Request) {
     else if (sortBy === "rating") { params.orderby = "rating"; params.order = "desc"; }
     else { params.orderby = "popularity"; params.order = "desc"; }
 
-    if (category) params.category = category;
+    if (category) {
+      if (/^\d+$/.test(category)) {
+        params.category = category;
+      } else {
+        try {
+          const catRes = await api.get("products/categories", { slug: category });
+          if (catRes?.data?.[0]?.id) {
+            params.category = String(catRes.data[0].id);
+          } else {
+            params.category = category;
+          }
+        } catch {
+          params.category = category;
+        }
+      }
+    }
     if (search) params.search = search;
     if (featured) params.featured = featured === "true";
     if (onSale) params.on_sale = onSale === "true";

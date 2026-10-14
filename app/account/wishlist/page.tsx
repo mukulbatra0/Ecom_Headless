@@ -48,8 +48,8 @@ export default function WishlistPage() {
             {items.map((item) => (
               <div key={item.id} className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden group hover:shadow-lg transition-all hover:-translate-y-1">
                 <Link href={`/products/${item.slug}`}>
-                  <div className="relative aspect-square bg-gray-50 rounded-t-3xl overflow-hidden">
-                    <Image src={getImageUrl(item.image)} alt={item.name} fill unoptimized={true} className="object-contain p-4 group-hover:scale-105 transition-transform duration-300" sizes="200px" />
+                  <div className="relative aspect-square bg-gray-50 rounded-2xl m-3 overflow-hidden">
+                    <Image src={getImageUrl(item.image)} alt={item.name} fill unoptimized={true} className="object-contain p-4 group-hover:scale-105 transition-transform duration-300 rounded-2xl" sizes="200px" />
                     {item.stock_status === "outofstock" && (
                       <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
                         <span className="text-xs font-bold text-gray-600 bg-white px-3 py-1.5 rounded-full border">Out of Stock</span>

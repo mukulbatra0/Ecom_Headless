@@ -85,7 +85,7 @@ export default function CartPage() {
                 {/* Image */}
                 <Link href={`/products/${item.slug}`} className="flex-shrink-0">
                   <div className="relative w-24 h-24 bg-gray-50 rounded-2xl overflow-hidden">
-                    <Image src={getImageUrl(item.image)} alt={item.name} fill unoptimized={true} className="object-contain p-2" sizes="96px" />
+                    <Image src={getImageUrl(item.image)} alt={item.name} fill unoptimized={true} className="object-contain p-2 rounded-xl" sizes="96px" />
                   </div>
                 </Link>
 

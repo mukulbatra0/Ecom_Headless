@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import { formatPrice } from "@/lib/utils/formatters";
 import { showToast } from "@/components/ToastProvider";
 import { useRouter } from "next/navigation";
@@ -29,6 +30,7 @@ const initialShipping: ShippingInfo = {
 
 export default function CheckoutPage() {
   const { items, subtotal, discount, total, clearCart } = useCart();
+  const { user } = useAuth();
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [shipping, setShipping] = useState<ShippingInfo>(initialShipping);
@@ -36,6 +38,40 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState("razorpay");
   const [orderNotes, setOrderNotes] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Auto-fill from user profile and saved addresses
+  useEffect(() => {
+    if (user) {
+      setShipping((prev) => ({
+        ...prev,
+        firstName: prev.firstName || user.first_name || (user.display_name ? user.display_name.split(" ")[0] : ""),
+        lastName: prev.lastName || user.last_name || (user.display_name ? user.display_name.split(" ").slice(1).join(" ") : ""),
+        email: prev.email || user.email || "",
+        phone: prev.phone || user.phone || "",
+      }));
+
+      // Try fetching saved customer addresses
+      fetch("/api/customer/addresses")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && data.shipping) {
+            const s = data.shipping;
+            setShipping((prev) => ({
+              ...prev,
+              firstName: prev.firstName || s.first_name || "",
+              lastName: prev.lastName || s.last_name || "",
+              address1: prev.address1 || s.address_1 || "",
+              address2: prev.address2 || s.address_2 || "",
+              city: prev.city || s.city || "",
+              state: prev.state || s.state || "",
+              postcode: prev.postcode || s.postcode || "",
+              phone: prev.phone || s.phone || "",
+            }));
+          }
+        })
+        .catch(() => {});
+    }
+  }, [user]);
 
   const shippingCost = subtotal > 999 ? 0 : (shippingMethod === "express" ? 199 : 99);
   const tax = Math.round(total * 0.18);
@@ -46,13 +82,44 @@ export default function CheckoutPage() {
   }
 
   function validateStep0() {
-    return shipping.firstName && shipping.lastName && shipping.email && shipping.phone;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return (
+      Boolean(shipping.firstName?.trim()) &&
+      Boolean(shipping.lastName?.trim()) &&
+      Boolean(shipping.email?.trim()) &&
+      emailRegex.test(shipping.email.trim()) &&
+      Boolean(shipping.phone?.trim())
+    );
   }
+
   function validateStep1() {
-    return shipping.address1 && shipping.city && shipping.state && shipping.postcode;
+    return (
+      Boolean(shipping.address1?.trim()) &&
+      Boolean(shipping.city?.trim()) &&
+      Boolean(shipping.state?.trim()) &&
+      Boolean(shipping.postcode?.trim())
+    );
   }
 
   async function handlePlaceOrder() {
+    if (!items || items.length === 0) {
+      showToast("Your cart is empty. Please add items before checking out.", "error");
+      router.push("/");
+      return;
+    }
+
+    if (!validateStep0()) {
+      showToast("Please provide your contact name, valid email, and phone number.", "error");
+      setStep(0);
+      return;
+    }
+
+    if (!validateStep1()) {
+      showToast("Please provide your complete shipping address.", "error");
+      setStep(1);
+      return;
+    }
+
     setLoading(true);
     try {
       // Create order
@@ -65,7 +132,9 @@ export default function CheckoutPage() {
           line_items: items.map((i) => ({ product_id: i.id, quantity: i.quantity })),
           payment_method: paymentMethod,
           shipping_method: shippingMethod,
+          shipping_cost: shippingCost,
           customer_note: orderNotes,
+          customer_id: user?.id || 0,
         }),
       });
       const orderData = await orderRes.json();
@@ -128,13 +197,32 @@ export default function CheckoutPage() {
         rzp.open();
       };
       document.body.appendChild(script);
-    } catch {
-      showToast("Something went wrong. Please try again.", "error");
+    } catch (err: any) {
+      showToast(err?.message || "Something went wrong. Please try again.", "error");
       setLoading(false);
     }
   }
 
   const indianStates = ["Andhra Pradesh","Assam","Bihar","Delhi","Goa","Gujarat","Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh","Maharashtra","Odisha","Punjab","Rajasthan","Tamil Nadu","Telangana","Uttar Pradesh","West Bengal"];
+
+  if (items.length === 0) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center px-4">
+        <div className="max-w-md w-full text-center bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
+          <div className="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Your Cart is Empty</h2>
+          <p className="text-sm text-gray-500 mb-6">You have no items in your shopping cart to checkout.</p>
+          <Link href="/" className="btn-primary inline-flex justify-center w-full">
+            Discover Products
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -381,7 +469,7 @@ export default function CheckoutPage() {
                 {items.map((item) => (
                   <div key={item.id} className="flex items-center gap-3">
                     <div className="relative w-12 h-12 bg-gray-50 rounded-xl overflow-hidden flex-shrink-0">
-                      <img src={item.image} alt={item.name} className="object-contain p-1 w-full h-full" />
+                      <img src={item.image} alt={item.name} className="object-contain p-1 w-full h-full rounded-lg" />
                       <span className="absolute -top-1 -right-1 w-4 h-4 bg-indigo-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{item.quantity}</span>
                     </div>
                     <div className="flex-1 min-w-0">
