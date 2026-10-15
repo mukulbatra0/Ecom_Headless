@@ -5,6 +5,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { formatPrice } from "@/lib/utils/formatters";
+import OrderInvoice from "@/components/OrderInvoice";
 
 interface OrderItem {
   id: number;
@@ -69,6 +70,7 @@ function OrderDetailContent() {
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [loadingOrder, setLoadingOrder] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -162,9 +164,21 @@ function OrderDetailContent() {
               </div>
               <p className="text-xs text-slate-500 mt-1">Payment Method: {order.payment_method_title || "Standard"}</p>
             </div>
-            <div className="text-left sm:text-right">
-              <div className="text-xs text-slate-400 uppercase font-bold tracking-wider">Total Amount</div>
-              <div className="text-2xl font-black text-indigo-600 mt-0.5">{formatPrice(order.total)}</div>
+            <div className="flex flex-col sm:items-end gap-2">
+              <div className="text-left sm:text-right">
+                <div className="text-xs text-slate-400 uppercase font-bold tracking-wider">Total Amount</div>
+                <div className="text-2xl font-black text-indigo-600 mt-0.5">{formatPrice(order.total)}</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowInvoiceModal(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl transition-colors"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                </svg>
+                Print Invoice
+              </button>
             </div>
           </div>
 
@@ -281,6 +295,14 @@ function OrderDetailContent() {
           </div>
         </div>
       </div>
+
+      {showInvoiceModal && (
+        <OrderInvoice
+          order={order}
+          isModal={true}
+          onClose={() => setShowInvoiceModal(false)}
+        />
+      )}
     </div>
   );
 }

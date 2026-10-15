@@ -1,17 +1,36 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import OrderInvoice, { InvoiceOrderData } from "@/components/OrderInvoice";
 
 function OrderConfirmationContent() {
   const { orderId } = useParams();
+  const [order, setOrder] = useState<InvoiceOrderData | null>(null);
+  const [showInvoice, setShowInvoice] = useState(false);
+  const [loadingInvoice, setLoadingInvoice] = useState(false);
+
+  useEffect(() => {
+    if (orderId) {
+      setLoadingInvoice(true);
+      fetch(`/api/orders/${orderId}/receipt`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && data.order) {
+            setOrder(data.order);
+          }
+        })
+        .catch(() => {})
+        .finally(() => setLoadingInvoice(false));
+    }
+  }, [orderId]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="max-w-lg w-full">
         {/* Success Card */}
-        <div className="bg-white rounded-3xl p-10 border border-gray-100 shadow-xl text-center">
+        <div className="bg-white rounded-3xl p-8 sm:p-10 border border-gray-100 shadow-xl text-center">
           {/* Checkmark Animation */}
           <div className="relative w-24 h-24 mx-auto mb-6">
             <div className="absolute inset-0 bg-emerald-100 rounded-full animate-ping-slow opacity-50" />
@@ -29,7 +48,7 @@ function OrderConfirmationContent() {
           </p>
 
           {/* Order Details */}
-          <div className="bg-indigo-50 rounded-2xl p-6 mb-6 text-left space-y-3">
+          <div className="bg-indigo-50/70 border border-indigo-100/60 rounded-2xl p-6 mb-6 text-left space-y-3">
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Order Number</span>
               <span className="font-bold text-gray-900">#{orderId}</span>
@@ -41,9 +60,25 @@ function OrderConfirmationContent() {
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Status</span>
               <span className="inline-flex items-center gap-1.5 font-bold text-indigo-600">
-                <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse" />
+                <span className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse" />
                 Processing
               </span>
+            </div>
+
+            {/* Invoice Action Button */}
+            <div className="pt-3 border-t border-indigo-100 flex items-center justify-between">
+              <span className="text-xs text-gray-500">Official Receipt:</span>
+              <button
+                type="button"
+                onClick={() => setShowInvoice(true)}
+                disabled={!order && loadingInvoice}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-indigo-200 hover:border-indigo-400 text-indigo-700 text-xs font-bold rounded-xl shadow-xs transition-all disabled:opacity-50"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                </svg>
+                {loadingInvoice ? "Preparing..." : "Print / Download Tax Invoice"}
+              </button>
             </div>
           </div>
 
@@ -89,6 +124,14 @@ function OrderConfirmationContent() {
           <Link href="/contact" className="text-indigo-600 font-semibold hover:underline">Contact Support</Link>
         </p>
       </div>
+
+      {showInvoice && order && (
+        <OrderInvoice
+          order={order}
+          isModal={true}
+          onClose={() => setShowInvoice(false)}
+        />
+      )}
     </div>
   );
 }

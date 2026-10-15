@@ -14,13 +14,13 @@ export default function HeroSection() {
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 leading-[1.15]">
               Upgrade Your
               <br />
-              <span>Everyday Style</span>
+              <span className="text-indigo-600">Everyday Fashion</span>
             </h1>
 
             <p className="text-sm sm:text-base md:text-lg text-slate-500 max-w-md leading-relaxed">
-              Premium products. Better quality.
+              Curated clothing, streetwear &amp; timeless apparel.
               <br className="hidden sm:inline" />
-              Unbeatable prices.
+              Premium quality, unbeatable style.
             </p>
 
             <div className="pt-2">
@@ -28,7 +28,7 @@ export default function HeroSection() {
                 href="/products"
                 className="inline-flex items-center gap-2 px-7 py-3.5 bg-slate-900 hover:bg-black text-white text-sm font-semibold rounded-full shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5"
               >
-                <span>Shop Now</span>
+                <span>Explore Collection</span>
                 <svg
                   className="w-4 h-4"
                   fill="none"
@@ -50,11 +50,11 @@ export default function HeroSection() {
           <div className="relative flex items-center justify-center md:justify-end">
             <div className="relative w-full max-w-[340px] sm:max-w-[400px] md:max-w-[460px] aspect-square flex items-center justify-center">
               {/* Soft decorative background glow */}
-              <div className="absolute inset-0 bg-white/60 rounded-full blur-2xl transform scale-90" />
+              <div className="absolute inset-0 bg-indigo-100/50 rounded-full blur-2xl transform scale-90" />
               
               <Image
-                src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80"
-                alt="Premium Wireless Headphones"
+                src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=80"
+                alt="Latest Fashion & Apparel Collection"
                 width={500}
                 height={500}
                 priority

@@ -1,16 +1,31 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
+import { formatPrice, getImageUrl } from "@/lib/utils/formatters";
+
+interface SearchSuggestion {
+  id: number;
+  name: string;
+  slug: string;
+  price: string;
+  images?: Array<{ src: string }>;
+  image?: string;
+  categories?: Array<{ name: string }>;
+}
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [mounted, setMounted] = useState(false);
+  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const { itemCount } = useCart();
@@ -21,6 +36,45 @@ export default function Header() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const q = searchQuery.trim();
+    if (q.length < 2) {
+      setSuggestions([]);
+      setShowDropdown(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setSearchLoading(true);
+      setShowDropdown(true);
+      try {
+        const res = await fetch(`/api/products?search=${encodeURIComponent(q)}&perPage=4`);
+        const data = await res.json();
+        if (data.success && Array.isArray(data.products)) {
+          setSuggestions(data.products);
+        } else {
+          setSuggestions([]);
+        }
+      } catch {
+        setSuggestions([]);
+      } finally {
+        setSearchLoading(false);
+      }
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -51,7 +105,7 @@ export default function Header() {
           </Link>
 
           {/* Search Bar - Center */}
-          <div ref={searchRef} className="hidden md:flex flex-1 max-w-xl mx-auto">
+          <div ref={searchRef} className="hidden md:flex flex-1 max-w-xl mx-auto relative">
             <form onSubmit={handleSearch} className="w-full relative">
               <input
                 type="text"
@@ -59,6 +113,11 @@ export default function Header() {
                 autoComplete="off"
                 suppressHydrationWarning
                 value={searchQuery}
+                onFocus={() => {
+                  if (searchQuery.trim().length >= 2 && suggestions.length > 0) {
+                    setShowDropdown(true);
+                  }
+                }}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search for products, brands and more..."
                 className="w-full pl-5 pr-12 py-3 bg-[#f3f4f6] hover:bg-[#eef0f3] focus:bg-white text-slate-800 placeholder-slate-400 rounded-full text-sm font-normal border border-transparent focus:border-slate-300 focus:outline-none transition-all duration-200"
@@ -83,6 +142,84 @@ export default function Header() {
                 </svg>
               </button>
             </form>
+
+            {/* Live Search Suggestions Dropdown */}
+            {showDropdown && searchQuery.trim().length >= 2 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden z-50 animate-fade-in">
+                <div className="p-3 border-b border-gray-50 flex items-center justify-between text-xs text-slate-400">
+                  <span>Products matching &quot;{searchQuery}&quot;</span>
+                  {searchLoading && <span className="text-indigo-600 font-semibold animate-pulse">Searching...</span>}
+                </div>
+
+                {searchLoading && suggestions.length === 0 ? (
+                  <div className="p-4 space-y-3">
+                    {[1, 2].map((i) => (
+                      <div key={i} className="flex items-center gap-3 animate-pulse">
+                        <div className="w-10 h-10 bg-gray-100 rounded-xl" />
+                        <div className="flex-1 space-y-1.5">
+                          <div className="h-3 bg-gray-100 rounded-full w-3/4" />
+                          <div className="h-3 bg-gray-100 rounded-full w-1/4" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : suggestions.length > 0 ? (
+                  <div className="divide-y divide-gray-50">
+                    {suggestions.map((item) => {
+                      const img = item.images?.[0]?.src || item.image || "";
+                      return (
+                        <Link
+                          key={item.id}
+                          href={`/products/${item.slug}`}
+                          onClick={() => {
+                            setShowDropdown(false);
+                            setSearchQuery("");
+                          }}
+                          className="p-3 hover:bg-slate-50 transition-colors flex items-center gap-3 group"
+                        >
+                          <div className="relative w-12 h-12 bg-gray-50 rounded-xl overflow-hidden flex-shrink-0 border border-gray-100">
+                            <Image
+                              src={getImageUrl(img)}
+                              alt={item.name}
+                              fill
+                              unoptimized={true}
+                              className="object-contain p-1 group-hover:scale-105 transition-transform"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-semibold text-slate-800 truncate group-hover:text-indigo-600 transition-colors">
+                              {item.name}
+                            </h4>
+                            {item.categories?.[0] && (
+                              <span className="text-[10px] text-slate-400 block">
+                                {item.categories[0].name}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-xs font-bold text-slate-900 flex-shrink-0">
+                            {formatPrice(item.price)}
+                          </span>
+                        </Link>
+                      );
+                    })}
+                    <Link
+                      href={`/products?search=${encodeURIComponent(searchQuery.trim())}`}
+                      onClick={() => {
+                        setShowDropdown(false);
+                        setSearchQuery("");
+                      }}
+                      className="p-3 block text-center text-xs font-bold text-indigo-600 hover:bg-indigo-50/50 transition-colors"
+                    >
+                      See all results for &quot;{searchQuery}&quot; →
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="p-6 text-center text-xs text-slate-500">
+                    No products found matching &quot;{searchQuery}&quot;.
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Right Action Icons */}

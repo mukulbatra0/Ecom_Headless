@@ -8,53 +8,92 @@ import api, { WooCommerceProduct } from "@/lib/woocommerce";
 
 export const dynamic = "force-dynamic";
 
-const CATEGORIES = [
-  {
-    id: "electronics",
-    name: "Electronics",
-    icon: (
+interface DisplayCategory {
+  id: number | string;
+  name: string;
+  slug: string;
+  count?: number;
+}
+
+const FALLBACK_FASHION_CATEGORIES: DisplayCategory[] = [
+  { id: 17, name: "Men's Collection", slug: "men", count: 6 },
+  { id: 26, name: "Women's Collection", slug: "women", count: 5 },
+  { id: 18, name: "T-Shirts & Tops", slug: "t-shirts", count: 3 },
+  { id: 64, name: "Jackets & Outerwear", slug: "jackets", count: 1 },
+  { id: 33, name: "Jeans & Denim", slug: "jeans", count: 2 },
+  { id: 67, name: "Accessories & Caps", slug: "accessories", count: 2 },
+];
+
+function getCategoryIcon(slug: string) {
+  const s = slug.toLowerCase();
+  if (s.includes("men") && !s.includes("women")) {
+    return (
       <svg className="w-6 h-6 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
       </svg>
-    ),
-  },
-  {
-    id: "fashion",
-    name: "Fashion",
-    icon: (
+    );
+  }
+  if (s.includes("women") || s.includes("dress") || s.includes("skirt")) {
+    return (
+      <svg className="w-6 h-6 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+      </svg>
+    );
+  }
+  if (s.includes("shirt") || s.includes("top")) {
+    return (
       <svg className="w-6 h-6 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" />
       </svg>
-    ),
-  },
-  {
-    id: "home-living",
-    name: "Home & Living",
-    icon: (
+    );
+  }
+  if (s.includes("jean") || s.includes("trouser") || s.includes("pant")) {
+    return (
       <svg className="w-6 h-6 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 21v-4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125V21m0 0h4.5V3.545M12 3v18m0-18L3 9.75M12 3l9 6.75" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 3h6l1.5 18-3.75-.75L12 13.5l-.75 6.75L7.5 21 9 3Z" />
       </svg>
-    ),
-  },
-  {
-    id: "beauty",
-    name: "Beauty",
-    icon: (
+    );
+  }
+  if (s.includes("jacket") || s.includes("hoodie") || s.includes("sweatshirt") || s.includes("coat")) {
+    return (
       <svg className="w-6 h-6 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m0-15-4.5 4.5M12 4.5l4.5 4.5M3.75 9h16.5M4.5 19.5h15" />
       </svg>
-    ),
-  },
-  {
-    id: "accessories",
-    name: "Accessories",
-    icon: (
+    );
+  }
+  if (s.includes("cap") || s.includes("hat") || s.includes("accessori")) {
+    return (
       <svg className="w-6 h-6 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
       </svg>
-    ),
-  },
-];
+    );
+  }
+  return (
+    <svg className="w-6 h-6 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" />
+    </svg>
+  );
+}
+
+async function getCategories(): Promise<DisplayCategory[]> {
+  try {
+    const res = await api.get("products/categories", {
+      per_page: 12,
+      orderby: "count",
+      order: "desc",
+      hide_empty: true,
+    });
+    if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
+      const filtered = res.data.filter(
+        (c: any) => c.slug !== "uncategorized" && c.count > 0
+      );
+      if (filtered.length > 0) return filtered;
+    }
+  } catch (error) {
+    console.error("Error fetching categories from WooCommerce:", error);
+  }
+  return FALLBACK_FASHION_CATEGORIES;
+}
 
 async function getFeaturedProducts(): Promise<WooCommerceProduct[]> {
   try {
@@ -135,15 +174,41 @@ async function NewArrivalsSection() {
   );
 }
 
+async function CategoriesSection() {
+  const categories = await getCategories();
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4 md:gap-5">
+      {categories.slice(0, 6).map((category) => (
+        <Link
+          key={category.id}
+          href={`/products?category=${category.id}`}
+          className="group p-5 sm:p-6 bg-[#f8fafc] hover:bg-slate-100/90 rounded-2xl md:rounded-3xl border border-gray-100/80 transition-all duration-200 flex flex-col items-center justify-center text-center hover:-translate-y-1 hover:shadow-xs"
+        >
+          <div className="w-12 h-12 rounded-full bg-white shadow-xs flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+            {getCategoryIcon(category.slug)}
+          </div>
+          <span className="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-slate-950">
+            {category.name}
+          </span>
+          {category.count !== undefined && category.count > 0 && (
+            <span className="text-[11px] text-slate-400 mt-0.5">
+              {category.count} {category.count === 1 ? "Item" : "Items"}
+            </span>
+          )}
+        </Link>
+      ))}
+    </div>
+  );
+}
+
 export default function Home() {
   return (
     <div className="bg-white min-h-screen">
-      {/* 1. Hero Section Banner with Badges */}
+      {/* 1. Hero Section Banner */}
       <HeroSection />
 
       {/* 2. Featured Products Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        {/* Section Header */}
         <div className="flex items-center justify-between mb-6 md:mb-8">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-slate-900">
             Featured Products
@@ -157,15 +222,13 @@ export default function Home() {
           </Link>
         </div>
 
-        {/* Featured Products Grid with Suspense */}
         <Suspense fallback={<ProductGridSkeleton />}>
           <FeaturedProductsSection />
         </Suspense>
       </section>
 
-      {/* 3. Shop by Category Section */}
+      {/* 3. Shop by Category Section (Pure Fashion & Clothing Categories) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        {/* Section Header */}
         <div className="flex items-center justify-between mb-6 md:mb-8">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-slate-900">
             Shop by Category
@@ -179,43 +242,40 @@ export default function Home() {
           </Link>
         </div>
 
-        {/* Categories Strip */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 md:gap-5">
-          {CATEGORIES.map((category) => (
-            <Link
-              key={category.id}
-              href={`/products?category=${category.id}`}
-              className="group p-5 sm:p-6 bg-[#f8fafc] hover:bg-slate-100/90 rounded-2xl md:rounded-3xl border border-gray-100/80 transition-all duration-200 flex flex-col items-center justify-center text-center hover:-translate-y-1 hover:shadow-xs"
-            >
-              <div className="w-12 h-12 rounded-full bg-white shadow-xs flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                {category.icon}
-              </div>
-              <span className="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-slate-950">
-                {category.name}
-              </span>
-            </Link>
-          ))}
-        </div>
+        <Suspense
+          fallback={
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4 md:gap-5">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="h-32 bg-slate-50 rounded-2xl animate-pulse" />
+              ))}
+            </div>
+          }
+        >
+          <CategoriesSection />
+        </Suspense>
       </section>
 
-      {/* 4. Promotional Banners (Two Split Banners) */}
+      {/* 4. Promotional Banners (Two Split Fashion Banners) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Banner 1: Summer Sale */}
-          <div className="relative bg-gradient-to-r from-sky-100/90 to-cyan-100 rounded-[2rem] p-6 sm:p-8 md:p-10 flex items-center justify-between overflow-hidden group">
+          {/* Banner 1: Summer Fashion Sale */}
+          <div className="relative bg-gradient-to-r from-amber-50/90 to-orange-100/70 rounded-[2rem] p-6 sm:p-8 md:p-10 flex items-center justify-between overflow-hidden group">
             <div className="space-y-3 z-10 max-w-[60%]">
-              <span className="text-xs font-bold uppercase tracking-wider text-sky-800">
-                Summer Sale
+              <span className="text-xs font-bold uppercase tracking-wider text-amber-800">
+                Summer Season
               </span>
               <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
                 Up to 50% OFF
               </h3>
+              <p className="text-xs sm:text-sm text-slate-500 font-medium">
+                Breezy Linens &amp; Casual Fits
+              </p>
               <div className="pt-2">
                 <Link
                   href="/products?onSale=true"
                   className="inline-flex items-center gap-1.5 px-6 py-2.5 bg-slate-900 hover:bg-black text-white text-xs sm:text-sm font-semibold rounded-full shadow-xs hover:shadow-md transition-all duration-200"
                 >
-                  <span>Shop Now</span>
+                  <span>Shop Summer</span>
                   <span>→</span>
                 </Link>
               </div>
@@ -224,8 +284,8 @@ export default function Home() {
             {/* Product Image */}
             <div className="relative w-36 h-36 sm:w-44 sm:h-44 flex-shrink-0 flex items-center justify-center">
               <Image
-                src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80"
-                alt="Summer Sale Smart Watch"
+                src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=600&auto=format&fit=crop&q=80"
+                alt="Summer Apparel Collection"
                 width={200}
                 height={200}
                 unoptimized={true}
@@ -234,24 +294,24 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Banner 2: New Arrivals Latest Collection */}
-          <div className="relative bg-gradient-to-r from-slate-100 to-gray-200/90 rounded-[2rem] p-6 sm:p-8 md:p-10 flex items-center justify-between overflow-hidden group">
+          {/* Banner 2: New Season Streetwear & Denim */}
+          <div className="relative bg-gradient-to-r from-slate-100 to-indigo-100/70 rounded-[2rem] p-6 sm:p-8 md:p-10 flex items-center justify-between overflow-hidden group">
             <div className="space-y-3 z-10 max-w-[60%]">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
+              <span className="text-xs font-bold uppercase tracking-wider text-indigo-700">
                 New Arrivals
               </span>
               <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
                 Latest Collection
               </h3>
               <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                Trendy • Premium • Stylish
+                Jackets • Denim • Urban Wear
               </p>
               <div className="pt-1">
                 <Link
                   href="/products?sortBy=date"
                   className="inline-flex items-center gap-1.5 px-6 py-2.5 bg-slate-900 hover:bg-black text-white text-xs sm:text-sm font-semibold rounded-full shadow-xs hover:shadow-md transition-all duration-200"
                 >
-                  <span>Shop Now</span>
+                  <span>Explore Now</span>
                   <span>→</span>
                 </Link>
               </div>
@@ -260,8 +320,8 @@ export default function Home() {
             {/* Product Image */}
             <div className="relative w-36 h-36 sm:w-44 sm:h-44 flex-shrink-0 flex items-center justify-center">
               <Image
-                src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=80"
-                alt="New Arrivals Sneakers"
+                src="https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&auto=format&fit=crop&q=80"
+                alt="Denim & Streetwear Jackets"
                 width={200}
                 height={200}
                 unoptimized={true}
@@ -274,7 +334,6 @@ export default function Home() {
 
       {/* 5. New Arrivals Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 mb-8">
-        {/* Section Header */}
         <div className="flex items-center justify-between mb-6 md:mb-8">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-slate-900">
             New Arrivals
@@ -288,7 +347,6 @@ export default function Home() {
           </Link>
         </div>
 
-        {/* New Arrivals Product Grid with Suspense */}
         <Suspense fallback={<ProductGridSkeleton />}>
           <NewArrivalsSection />
         </Suspense>

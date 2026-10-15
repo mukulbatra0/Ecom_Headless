@@ -17,13 +17,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "ShopZen - Premium Online Shopping",
+  title: "ShopZen - Premium Fashion & Clothing Store",
   description:
-    "Discover premium products at unbeatable prices. Shop electronics, fashion, home & more with secure checkout and fast shipping.",
-  keywords: ["e-commerce", "online shopping", "electronics", "fashion", "ShopZen"],
+    "Discover the latest trends in fashion and clothing. Shop premium men's & women's apparel, streetwear, denim & accessories with fast shipping.",
+  keywords: ["fashion", "clothing", "streetwear", "apparel", "men's fashion", "women's fashion", "ShopZen"],
   openGraph: {
-    title: "ShopZen - Premium Online Shopping",
-    description: "Discover premium products at unbeatable prices.",
+    title: "ShopZen - Premium Fashion & Clothing Store",
+    description: "Discover curated fashion, streetwear and everyday clothing at ShopZen.",
     type: "website",
   },
 };
