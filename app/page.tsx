@@ -6,6 +6,8 @@ import ProductCard from "@/components/ProductCard";
 import ProductCardSkeleton from "@/components/ProductCardSkeleton";
 import api, { WooCommerceProduct } from "@/lib/woocommerce";
 
+export const dynamic = "force-dynamic";
+
 const CATEGORIES = [
   {
     id: "electronics",
@@ -112,8 +114,8 @@ async function FeaturedProductsSection() {
   }
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-      {featuredProducts.slice(0, 4).map((product) => (
-        <ProductCard key={product.id} product={product} />
+      {featuredProducts.slice(0, 4).map((product, idx) => (
+        <ProductCard key={product.id ? `feat-${product.id}` : `feat-${idx}`} product={product} />
       ))}
     </div>
   );
@@ -126,8 +128,8 @@ async function NewArrivalsSection() {
   }
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-      {newArrivals.slice(0, 4).map((product) => (
-        <ProductCard key={product.id} product={product} />
+      {newArrivals.slice(0, 4).map((product, idx) => (
+        <ProductCard key={product.id ? `arrival-${product.id}` : `arrival-${idx}`} product={product} />
       ))}
     </div>
   );

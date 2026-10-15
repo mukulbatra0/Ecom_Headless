@@ -22,7 +22,7 @@ export default function CartPage() {
       const res = await fetch("/api/cart/apply-coupon", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: couponCode.trim() }),
+        body: JSON.stringify({ code: couponCode.trim(), subtotal }),
       });
       const data = await res.json();
       if (data.success) {
@@ -80,8 +80,8 @@ export default function CartPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* ===== CART ITEMS ===== */}
           <div className="lg:col-span-2 space-y-4">
-            {items.map((item) => (
-              <div key={item.id} className="bg-white rounded-3xl p-5 flex gap-4 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+            {items.map((item, idx) => (
+              <div key={`cart-item-${item.id}-${idx}`} className="bg-white rounded-3xl p-5 flex gap-4 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
                 {/* Image */}
                 <Link href={`/products/${item.slug}`} className="flex-shrink-0">
                   <div className="relative w-24 h-24 bg-gray-50 rounded-2xl overflow-hidden">

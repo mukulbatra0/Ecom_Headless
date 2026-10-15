@@ -9,6 +9,8 @@ const FALLBACK_CATEGORIES = [
   { id: 5, name: "Accessories", slug: "accessories", count: 41, parent: 0, description: "Watches, Bags & Smart Wearables", image: null },
 ];
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const fetchPromise = api.get("products/categories", {

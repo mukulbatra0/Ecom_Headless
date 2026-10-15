@@ -1,33 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { getImageUrl } from "@/lib/utils/formatters";
 
-interface TrackingItem {
-  id: number;
-  name: string;
-  price: string;
-  image: string;
-  quantity: number;
-}
-
-export default function TrackOrderPage() {
-  const [orderQuery, setOrderQuery] = useState("OD003547");
+function TrackOrderContent() {
+  const searchParams = useSearchParams();
+  const initialOrderId = searchParams.get("orderId") || searchParams.get("id") || "OD003547";
+  const [orderQuery, setOrderQuery] = useState(initialOrderId);
   const [searched, setSearched] = useState(true);
 
+  useEffect(() => {
+    const q = searchParams.get("orderId") || searchParams.get("id");
+    if (q) {
+      setOrderQuery(q);
+      setSearched(true);
+    }
+  }, [searchParams]);
+
   const orderData = {
-    id: "OD003547",
+    id: orderQuery.trim() || "OD003547",
     date: "12 Oct 2026",
     status: "Out for Delivery",
     courier: "Delhivery Express",
-    trackingId: "DEL9876543210",
-    estimatedDelivery: "14 Oct 2026, by 8:00 PM",
+    trackingId: `DEL${orderQuery.replace(/\D/g, "") || "9876543210"}`,
+    estimatedDelivery: "Today, by 8:00 PM",
     steps: [
       { label: "Order Placed", date: "12 Oct, 10:30 AM", completed: true },
       { label: "Shipped", date: "13 Oct, 02:15 PM", completed: true },
-      { label: "Out for Delivery", date: "14 Oct, 09:00 AM", completed: true, active: true },
+      { label: "Out for Delivery", date: "Today, 09:00 AM", completed: true },
       { label: "Delivered", date: "Expected Today", completed: false },
     ],
     items: [
@@ -44,13 +47,6 @@ export default function TrackOrderPage() {
         price: "4,499",
         quantity: 1,
         image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&auto=format&fit=crop&q=80",
-      },
-      {
-        id: 3,
-        name: "Men's Classic T-Shirt",
-        price: "799",
-        quantity: 1,
-        image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500&auto=format&fit=crop&q=80",
       },
     ],
   };
@@ -80,7 +76,7 @@ export default function TrackOrderPage() {
               type="text"
               value={orderQuery}
               onChange={(e) => setOrderQuery(e.target.value)}
-              placeholder="e.g. OD003547"
+              placeholder="e.g. 1045 or OD003547"
               className="flex-1 px-5 py-3 rounded-full bg-white border border-gray-200 text-sm focus:outline-none focus:border-indigo-500 shadow-xs"
             />
             <button
@@ -108,14 +104,17 @@ export default function TrackOrderPage() {
                   </div>
                   <p className="text-xs text-slate-400 mt-1">Placed on {orderData.date}</p>
                 </div>
+
                 <div className="text-left sm:text-right">
-                  <span className="text-xs text-slate-400 block">Estimated Delivery</span>
-                  <span className="text-sm font-bold text-slate-900">{orderData.estimatedDelivery}</span>
+                  <span className="text-xs text-slate-400 block">Expected Arrival</span>
+                  <span className="text-sm font-bold text-emerald-600">
+                    {orderData.estimatedDelivery}
+                  </span>
                 </div>
               </div>
 
-              {/* Progress Timeline */}
-              <div className="py-8">
+              {/* Progress Stepper */}
+              <div className="py-8 px-2 sm:px-6">
                 <div className="relative flex items-center justify-between">
                   {/* Connecting Line */}
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-gray-100 -z-0">
@@ -153,7 +152,9 @@ export default function TrackOrderPage() {
               {/* Shipment Details Box */}
               <div className="bg-[#f8fafc] rounded-2xl p-5 border border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1">
-                  <span className="text-xs text-slate-400 uppercase font-semibold tracking-wider">Shipment Details</span>
+                  <span className="text-xs text-slate-400 uppercase font-semibold tracking-wider">
+                    Shipment Partner
+                  </span>
                   <div className="flex items-center gap-3">
                     <span className="text-sm font-bold text-slate-900">{orderData.courier}</span>
                     <span className="text-xs text-slate-500 font-mono">({orderData.trackingId})</span>
@@ -165,7 +166,7 @@ export default function TrackOrderPage() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-1.5 px-5 py-2.5 bg-white hover:bg-slate-50 border border-gray-200 text-slate-800 text-xs font-bold rounded-full transition-colors shadow-xs"
                 >
-                  <span>Live Tracking</span>
+                  <span>Live Courier Status</span>
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
                   </svg>
@@ -212,5 +213,19 @@ export default function TrackOrderPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function TrackOrderPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50 py-16 flex items-center justify-center">
+          <div className="w-8 h-8 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <TrackOrderContent />
+    </Suspense>
   );
 }

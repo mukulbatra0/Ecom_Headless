@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { formatPrice, getImageUrl } from "@/lib/utils/formatters";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
@@ -125,7 +125,6 @@ function ProductCard({ product }: { product: Product }) {
 
 function ProductsPageContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
 
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -261,8 +260,8 @@ function ProductsPageContent() {
                     <input type="radio" name="category" checked={selectedCategory === ""} onChange={() => { setSelectedCategory(""); setCurrentPage(1); }} className="accent-indigo-500 w-4 h-4" />
                     <span className={`text-sm font-medium ${selectedCategory === "" ? "text-indigo-600" : "text-gray-700 group-hover:text-indigo-600"} transition-colors`}>All Products</span>
                   </label>
-                  {categories.map((cat) => (
-                    <label key={cat.id} className="flex items-center gap-3 cursor-pointer group">
+                  {categories.map((cat, idx) => (
+                    <label key={cat.id ? `cat-${cat.id}` : `cat-${idx}`} className="flex items-center gap-3 cursor-pointer group">
                       <input type="radio" name="category" checked={selectedCategory === String(cat.id)} onChange={() => { setSelectedCategory(String(cat.id)); setCurrentPage(1); }} className="accent-indigo-500 w-4 h-4" />
                       <span className={`text-sm font-medium flex-1 ${selectedCategory === String(cat.id) ? "text-indigo-600" : "text-gray-700 group-hover:text-indigo-600"} transition-colors`}>{cat.name}</span>
                       <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">{cat.count}</span>
@@ -283,7 +282,7 @@ function ProductsPageContent() {
                   <input type="range" min={0} max={50000} step={500} value={priceMax} onChange={(e) => { setPriceMax(Number(e.target.value)); setCurrentPage(1); }} className="w-full" />
                   <div className="grid grid-cols-2 gap-2">
                     {[[0, 1000], [1000, 5000], [5000, 15000], [15000, 50000]].map(([min, max]) => (
-                      <button key={min} onClick={() => { setPriceMin(min); setPriceMax(max); setCurrentPage(1); }} className={`text-xs py-1.5 px-2 rounded-xl border transition-all ${priceMin === min && priceMax === max ? "bg-indigo-500 text-white border-indigo-500" : "border-gray-200 text-gray-600 hover:border-indigo-300"}`}>
+                      <button key={`price-${min}-${max}`} onClick={() => { setPriceMin(min); setPriceMax(max); setCurrentPage(1); }} className={`text-xs py-1.5 px-2 rounded-xl border transition-all ${priceMin === min && priceMax === max ? "bg-indigo-500 text-white border-indigo-500" : "border-gray-200 text-gray-600 hover:border-indigo-300"}`}>
                         ₹{min === 0 ? "0" : `${min/1000}K`} - ₹{max === 50000 ? "50K+" : `${max/1000}K`}
                       </button>
                     ))}
@@ -339,7 +338,7 @@ function ProductsPageContent() {
               {/* Active Filter Tags */}
               {hasFilters && (
                 <div className="flex flex-wrap gap-2">
-                  {searchQuery && <span className="flex items-center gap-1 px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-medium">"{searchQuery}" <button onClick={() => setSearchQuery("")}>×</button></span>}
+                  {searchQuery && <span className="flex items-center gap-1 px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-medium">&quot;{searchQuery}&quot; <button onClick={() => setSearchQuery("")}>×</button></span>}
                   {selectedCategory && <span className="flex items-center gap-1 px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-medium">Category <button onClick={() => setSelectedCategory("")}>×</button></span>}
                   {inStockOnly && <span className="flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">In Stock <button onClick={() => setInStockOnly(false)}>×</button></span>}
                   {onSaleOnly && <span className="flex items-center gap-1 px-3 py-1 bg-rose-100 text-rose-700 rounded-full text-xs font-medium">On Sale <button onClick={() => setOnSaleOnly(false)}>×</button></span>}
@@ -376,12 +375,12 @@ function ProductsPageContent() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-gray-800 mb-2">No products found</h3>
-                <p className="text-gray-500 mb-6 max-w-sm">Try adjusting your filters or search terms to find what you're looking for.</p>
+                <p className="text-gray-500 mb-6 max-w-sm">Try adjusting your filters or search terms to find what you&apos;re looking for.</p>
                 <button onClick={clearFilters} className="btn-primary">Clear Filters</button>
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 animate-fade-in">
-                {products.map((product) => <ProductCard key={product.id} product={product} />)}
+                {products.map((product, idx) => <ProductCard key={product.id ? `prod-${product.id}` : `prod-${idx}`} product={product} />)}
               </div>
             )}
 

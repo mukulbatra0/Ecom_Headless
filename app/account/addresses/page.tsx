@@ -185,7 +185,22 @@ export default function AddressesPage() {
     showToast("Default address updated", "success");
   }
 
-  if (isLoading || !user) return null;
+  if (isLoading || !user || loadingAddresses) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-gray-200 rounded-full w-48 mb-6" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[1, 2].map((i) => (
+                <div key={i} className="h-44 bg-white rounded-[2rem] border border-gray-100 p-6" />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">

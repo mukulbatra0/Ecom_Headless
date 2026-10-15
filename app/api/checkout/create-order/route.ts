@@ -14,6 +14,8 @@ export async function POST(request: Request) {
       shipping_cost,
       customer_note,
       customer_id: bodyCustomerId,
+      coupon_lines,
+      coupon_code,
     } = body || {};
 
     let customerId = bodyCustomerId ? parseInt(bodyCustomerId, 10) : 0;
@@ -123,6 +125,11 @@ export async function POST(request: Request) {
         },
       ],
       customer_note: customer_note || "",
+      ...(Array.isArray(coupon_lines) && coupon_lines.length > 0
+        ? { coupon_lines }
+        : coupon_code
+        ? { coupon_lines: [{ code: coupon_code }] }
+        : {}),
     };
 
     let response;

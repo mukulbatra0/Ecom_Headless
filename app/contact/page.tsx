@@ -19,7 +19,7 @@ export default function ContactPage() {
         <div className="text-center mb-12">
           <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">Get in touch</span>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mt-1">
-            We'd love to hear from you
+            We&apos;d love to hear from you
           </h1>
           <p className="text-sm text-slate-500 mt-2">
             Have a question about an order, product or partnership? Reach out anytime.

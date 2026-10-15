@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { useWishlist } from "@/context/WishlistContext";
 import { useCart } from "@/context/CartContext";
 import { formatPrice, getImageUrl } from "@/lib/utils/formatters";
@@ -45,8 +44,8 @@ export default function WishlistPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {items.map((item) => (
-              <div key={item.id} className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden group hover:shadow-lg transition-all hover:-translate-y-1">
+            {items.map((item, idx) => (
+              <div key={`wishlist-${item.id}-${idx}`} className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden group hover:shadow-lg transition-all hover:-translate-y-1">
                 <Link href={`/products/${item.slug}`}>
                   <div className="relative aspect-square bg-gray-50 rounded-2xl m-3 overflow-hidden">
                     <Image src={getImageUrl(item.image)} alt={item.name} fill unoptimized={true} className="object-contain p-4 group-hover:scale-105 transition-transform duration-300 rounded-2xl" sizes="200px" />

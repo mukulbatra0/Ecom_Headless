@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
-import { formatPrice } from "@/lib/utils/formatters";
+import { formatPrice, getImageUrl } from "@/lib/utils/formatters";
 import { showToast } from "@/components/ToastProvider";
 import { useRouter } from "next/navigation";
 
@@ -29,7 +30,7 @@ const initialShipping: ShippingInfo = {
 };
 
 export default function CheckoutPage() {
-  const { items, subtotal, discount, total, clearCart } = useCart();
+  const { items, subtotal, discount, total, coupon, clearCart } = useCart();
   const { user } = useAuth();
   const router = useRouter();
   const [step, setStep] = useState(0);
@@ -135,6 +136,7 @@ export default function CheckoutPage() {
           shipping_cost: shippingCost,
           customer_note: orderNotes,
           customer_id: user?.id || 0,
+          coupon_code: coupon?.code || undefined,
         }),
       });
       const orderData = await orderRes.json();
@@ -274,7 +276,7 @@ export default function CheckoutPage() {
                   </div>
                   <div>
                     <h2 className="font-bold text-gray-900 text-lg">Contact Information</h2>
-                    <p className="text-xs text-gray-500">We'll use this to send your order confirmation</p>
+                    <p className="text-xs text-gray-500">We&apos;ll use this to send your order confirmation</p>
                   </div>
                 </div>
 
@@ -466,10 +468,10 @@ export default function CheckoutPage() {
             <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm sticky top-24">
               <h3 className="font-bold text-gray-900 mb-5">Order Summary</h3>
               <div className="space-y-3 mb-5">
-                {items.map((item) => (
-                  <div key={item.id} className="flex items-center gap-3">
+                {items.map((item, idx) => (
+                  <div key={`checkout-item-${item.id}-${idx}`} className="flex items-center gap-3">
                     <div className="relative w-12 h-12 bg-gray-50 rounded-xl overflow-hidden flex-shrink-0">
-                      <img src={item.image} alt={item.name} className="object-contain p-1 w-full h-full rounded-lg" />
+                      <Image src={getImageUrl(item.image)} alt={item.name} fill unoptimized={true} className="object-contain p-1 rounded-lg" />
                       <span className="absolute -top-1 -right-1 w-4 h-4 bg-indigo-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{item.quantity}</span>
                     </div>
                     <div className="flex-1 min-w-0">

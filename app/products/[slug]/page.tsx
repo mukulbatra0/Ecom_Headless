@@ -208,7 +208,7 @@ function ProductDetailContent() {
               <div className="grid grid-cols-5 gap-3">
                 {product.images.map((img, i) => (
                   <button
-                    key={img.id}
+                    key={img.id ? `thumb-${img.id}-${i}` : `thumb-${i}`}
                     onClick={() => setActiveImage(i)}
                     className={`relative aspect-square bg-white rounded-2xl overflow-hidden border-2 transition-all ${activeImage === i ? "border-indigo-500 shadow-md shadow-indigo-100" : "border-gray-100 hover:border-indigo-200"}`}
                   >
@@ -275,8 +275,8 @@ function ProductDetailContent() {
             )}
 
             {/* Attributes/Variants */}
-            {product.attributes?.map((attr) => (
-              <div key={attr.id}>
+            {product.attributes?.map((attr, attrIdx) => (
+              <div key={`attr-${attr.name || attr.id || attrIdx}`}>
                 <p className="text-sm font-bold text-gray-800 mb-2">{attr.name}: <span className="text-indigo-600">{selectedAttributes[attr.name]}</span></p>
                 <div className="flex flex-wrap gap-2">
                   {attr.options.map((opt) => (
@@ -374,8 +374,8 @@ function ProductDetailContent() {
             )}
             {activeTab === "specs" && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {product.attributes?.length > 0 ? product.attributes.map((attr) => (
-                  <div key={attr.id} className="flex items-start gap-3 p-4 bg-gray-50 rounded-2xl">
+                {product.attributes?.length > 0 ? product.attributes.map((attr, idx) => (
+                  <div key={`spec-${attr.name || attr.id || idx}`} className="flex items-start gap-3 p-4 bg-gray-50 rounded-2xl">
                     <div className="w-8 h-8 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0">
                       <svg className="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" /></svg>
                     </div>
@@ -417,8 +417,8 @@ function ProductDetailContent() {
                         })}
                       </div>
                     </div>
-                    {reviews.map((review) => (
-                      <div key={review.id} className="border-b border-gray-100 pb-6 last:border-0">
+                    {reviews.map((review, idx) => (
+                      <div key={review.id ? `rev-${review.id}` : `rev-${idx}`} className="border-b border-gray-100 pb-6 last:border-0">
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-gradient-to-br from-indigo-400 to-violet-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
@@ -454,10 +454,10 @@ function ProductDetailContent() {
               <Link href="/products" className="text-sm font-semibold text-indigo-600 hover:underline">View All →</Link>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {relatedProducts.map((rp) => {
+              {relatedProducts.map((rp, idx) => {
                 const rpImage = getImageUrl(rp.images?.[0]?.src);
                 return (
-                  <Link key={rp.id} href={`/products/${rp.slug}`}>
+                  <Link key={rp.id ? `rp-${rp.id}` : `rp-${idx}`} href={`/products/${rp.slug}`}>
                     <div className="bg-white rounded-3xl overflow-hidden border border-gray-100 hover:border-indigo-100 hover:shadow-lg transition-all hover:-translate-y-1 group">
                       <div className="relative aspect-square bg-gray-50 rounded-t-3xl overflow-hidden">
                         <Image src={rpImage} alt={rp.name} fill unoptimized={true} className="object-contain p-4 group-hover:scale-105 transition-transform duration-300" sizes="200px" />

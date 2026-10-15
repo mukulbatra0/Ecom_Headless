@@ -64,6 +64,8 @@ const FALLBACK_FEATURED = [
   },
 ];
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const fetchPromise = api.get("products", {

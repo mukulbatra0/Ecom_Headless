@@ -204,8 +204,8 @@ function OrderDetailContent() {
         <div className="bg-white rounded-[2rem] p-6 sm:p-8 border border-gray-100 shadow-sm mb-6">
           <h2 className="text-base font-bold text-slate-900 mb-4">Items in this Order ({order.line_items.length})</h2>
           <div className="divide-y divide-gray-100">
-            {order.line_items.map((item) => (
-              <div key={item.id} className="py-4 first:pt-0 last:pb-0 flex items-center justify-between gap-4">
+            {order.line_items.map((item, idx) => (
+              <div key={item.id ? `order-item-${item.id}` : `order-item-${idx}`} className="py-4 first:pt-0 last:pb-0 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-slate-50 border border-gray-100 rounded-xl flex items-center justify-center text-lg flex-shrink-0">
                     🛍️

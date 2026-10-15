@@ -151,8 +151,8 @@ export default function OrdersPage() {
                       {/* Line Item Preview */}
                       {order.line_items && order.line_items.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-1.5 text-xs text-slate-700 font-medium">
-                          {order.line_items.map((item) => (
-                            <span key={item.id} className="inline-block bg-slate-50 px-2.5 py-1 rounded-lg border border-gray-100">
+                          {order.line_items.map((item, idx) => (
+                            <span key={item.id ? `item-${item.id}` : `item-${idx}`} className="inline-block bg-slate-50 px-2.5 py-1 rounded-lg border border-gray-100">
                               {item.name} {item.quantity > 1 ? `(×${item.quantity})` : ""}
                             </span>
                           ))}
