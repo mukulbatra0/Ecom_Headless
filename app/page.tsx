@@ -1,10 +1,11 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import HeroSection from "@/components/HeroSection";
 import ProductCard from "@/components/ProductCard";
 import ProductCardSkeleton from "@/components/ProductCardSkeleton";
+import PromotionalBanners from "@/components/PromotionalBanners";
 import api, { WooCommerceProduct } from "@/lib/woocommerce";
+import { getHomepageCmsData, CmsCategory } from "@/lib/cms";
 
 export const dynamic = "force-dynamic";
 
@@ -14,15 +15,6 @@ interface DisplayCategory {
   slug: string;
   count?: number;
 }
-
-const FALLBACK_FASHION_CATEGORIES: DisplayCategory[] = [
-  { id: 17, name: "Men's Collection", slug: "men", count: 6 },
-  { id: 26, name: "Women's Collection", slug: "women", count: 5 },
-  { id: 18, name: "T-Shirts & Tops", slug: "t-shirts", count: 3 },
-  { id: 64, name: "Jackets & Outerwear", slug: "jackets", count: 1 },
-  { id: 33, name: "Jeans & Denim", slug: "jeans", count: 2 },
-  { id: 67, name: "Accessories & Caps", slug: "accessories", count: 2 },
-];
 
 function getCategoryIcon(slug: string) {
   const s = slug.toLowerCase();
@@ -75,7 +67,36 @@ function getCategoryIcon(slug: string) {
   );
 }
 
-async function getCategories(): Promise<DisplayCategory[]> {
+async function getCategories(cmsCategories?: CmsCategory[]): Promise<DisplayCategory[]> {
+  if (cmsCategories && cmsCategories.length > 0) {
+    try {
+      const res = await api.get("products/categories", {
+        per_page: 50,
+        hide_empty: false,
+      });
+      if (res?.data && Array.isArray(res.data)) {
+        const wcCategories = res.data;
+        return cmsCategories.map((c) => {
+          const matched = wcCategories.find(
+            (wc: any) =>
+              String(wc.id) === String(c.id) ||
+              wc.slug.toLowerCase() === c.slug.toLowerCase()
+          );
+          return {
+            id: c.id,
+            name: c.name,
+            slug: c.slug,
+            count: matched?.count !== undefined ? matched.count : c.count,
+          };
+        });
+      }
+    } catch {
+      return cmsCategories;
+    }
+    return cmsCategories;
+  }
+
+  // Fallback to WooCommerce directly if no CMS categories passed
   try {
     const res = await api.get("products/categories", {
       per_page: 12,
@@ -92,7 +113,7 @@ async function getCategories(): Promise<DisplayCategory[]> {
   } catch (error) {
     console.error("Error fetching categories from WooCommerce:", error);
   }
-  return FALLBACK_FASHION_CATEGORIES;
+  return [];
 }
 
 async function getFeaturedProducts(): Promise<WooCommerceProduct[]> {
@@ -174,8 +195,8 @@ async function NewArrivalsSection() {
   );
 }
 
-async function CategoriesSection() {
-  const categories = await getCategories();
+async function CategoriesSection({ categories: propCategories }: { categories?: CmsCategory[] }) {
+  const categories = await getCategories(propCategories);
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4 md:gap-5">
       {categories.slice(0, 6).map((category) => (
@@ -201,17 +222,20 @@ async function CategoriesSection() {
   );
 }
 
-export default function Home() {
+export default async function Home() {
+  // Fetch CMS-driven homepage content directly from WordPress
+  const cmsData = await getHomepageCmsData();
+
   return (
     <div className="bg-white min-h-screen">
-      {/* 1. Hero Section Banner */}
-      <HeroSection />
+      {/* 1. Hero Section Banner (CMS-driven) */}
+      <HeroSection hero={cmsData.hero} />
 
       {/* 2. Featured Products Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <div className="flex items-center justify-between mb-6 md:mb-8">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-slate-900">
-            Featured Products
+            {cmsData.section_headings?.featured_products || "Featured Products"}
           </h2>
           <Link
             href="/products"
@@ -227,11 +251,11 @@ export default function Home() {
         </Suspense>
       </section>
 
-      {/* 3. Shop by Category Section (Pure Fashion & Clothing Categories) */}
+      {/* 3. Shop by Category Section (CMS-driven curated categories) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <div className="flex items-center justify-between mb-6 md:mb-8">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-slate-900">
-            Shop by Category
+            {cmsData.section_headings?.categories || "Shop by Category"}
           </h2>
           <Link
             href="/products"
@@ -251,92 +275,20 @@ export default function Home() {
             </div>
           }
         >
-          <CategoriesSection />
+          <CategoriesSection categories={cmsData.categories} />
         </Suspense>
       </section>
 
-      {/* 4. Promotional Banners (Two Split Fashion Banners) */}
+      {/* 4. Promotional Banners (CMS-driven) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Banner 1: Summer Fashion Sale */}
-          <div className="relative bg-gradient-to-r from-amber-50/90 to-orange-100/70 rounded-[2rem] p-6 sm:p-8 md:p-10 flex items-center justify-between overflow-hidden group">
-            <div className="space-y-3 z-10 max-w-[60%]">
-              <span className="text-xs font-bold uppercase tracking-wider text-amber-800">
-                Summer Season
-              </span>
-              <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
-                Up to 50% OFF
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                Breezy Linens &amp; Casual Fits
-              </p>
-              <div className="pt-2">
-                <Link
-                  href="/products?onSale=true"
-                  className="inline-flex items-center gap-1.5 px-6 py-2.5 bg-slate-900 hover:bg-black text-white text-xs sm:text-sm font-semibold rounded-full shadow-xs hover:shadow-md transition-all duration-200"
-                >
-                  <span>Shop Summer</span>
-                  <span>→</span>
-                </Link>
-              </div>
-            </div>
-
-            {/* Product Image */}
-            <div className="relative w-36 h-36 sm:w-44 sm:h-44 flex-shrink-0 flex items-center justify-center">
-              <Image
-                src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=600&auto=format&fit=crop&q=80"
-                alt="Summer Apparel Collection"
-                width={200}
-                height={200}
-                unoptimized={true}
-                className="object-contain drop-shadow-lg group-hover:scale-105 transition-transform duration-300 rounded-2xl"
-              />
-            </div>
-          </div>
-
-          {/* Banner 2: New Season Streetwear & Denim */}
-          <div className="relative bg-gradient-to-r from-slate-100 to-indigo-100/70 rounded-[2rem] p-6 sm:p-8 md:p-10 flex items-center justify-between overflow-hidden group">
-            <div className="space-y-3 z-10 max-w-[60%]">
-              <span className="text-xs font-bold uppercase tracking-wider text-indigo-700">
-                New Arrivals
-              </span>
-              <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
-                Latest Collection
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                Jackets • Denim • Urban Wear
-              </p>
-              <div className="pt-1">
-                <Link
-                  href="/products?sortBy=date"
-                  className="inline-flex items-center gap-1.5 px-6 py-2.5 bg-slate-900 hover:bg-black text-white text-xs sm:text-sm font-semibold rounded-full shadow-xs hover:shadow-md transition-all duration-200"
-                >
-                  <span>Explore Now</span>
-                  <span>→</span>
-                </Link>
-              </div>
-            </div>
-
-            {/* Product Image */}
-            <div className="relative w-36 h-36 sm:w-44 sm:h-44 flex-shrink-0 flex items-center justify-center">
-              <Image
-                src="https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&auto=format&fit=crop&q=80"
-                alt="Denim & Streetwear Jackets"
-                width={200}
-                height={200}
-                unoptimized={true}
-                className="object-contain drop-shadow-lg group-hover:scale-105 transition-transform duration-300 rounded-2xl"
-              />
-            </div>
-          </div>
-        </div>
+        <PromotionalBanners banners={cmsData.promotional_banners} />
       </section>
 
       {/* 5. New Arrivals Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 mb-8">
         <div className="flex items-center justify-between mb-6 md:mb-8">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-slate-900">
-            New Arrivals
+            {cmsData.section_headings?.new_arrivals || "New Arrivals"}
           </h2>
           <Link
             href="/products?sortBy=date"
